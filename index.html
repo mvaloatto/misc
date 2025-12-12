@@ -1,0 +1,51 @@
+ <!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Semaine du</title>
+  <style>
+    /* Widget conçu pour être embed (fond transparent) */
+    html, body { margin: 0; padding: 0; background: transparent; }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      font-size: 14px;
+      line-height: 1.2;
+      color: inherit;
+    }
+    .wrap { display: inline-flex; gap: 6px; align-items: baseline; }
+    .label { opacity: .8; }
+    .date { font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="label">Semaine du</span>
+    <span id="week-date" class="date"></span>
+  </div>
+
+  <script>
+    (function () {
+      function parisNow() {
+        return new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Paris" }));
+      }
+      function mondayOfWeek(d) {
+        const day = (d.getDay() + 6) % 7; // Monday=0 ... Sunday=6
+        const monday = new Date(d);
+        monday.setDate(d.getDate() - day);
+        monday.setHours(0, 0, 0, 0);
+        return monday;
+      }
+      function formatFR(d) {
+        return new Intl.DateTimeFormat("fr-FR", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+          timeZone: "Europe/Paris"
+        }).format(d);
+      }
+      document.getElementById("week-date").textContent = formatFR(mondayOfWeek(parisNow()));
+    })();
+  </script>
+</body>
+</html>
