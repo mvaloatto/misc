@@ -1,50 +1,78 @@
- <!doctype html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Semaine du</title>
+  <title>Semaine (précédente)</title>
+
+  <!-- Inter (Google Fonts) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
-    /* Widget conçu pour être embed (fond transparent) */
     html, body { margin: 0; padding: 0; background: transparent; }
-    body {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      font-size: 14px;
+
+    body{
+      font-family: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 15px;
       line-height: 1.2;
-      color: inherit;
+      font-weight: 400;
+      color: #f4f0e1;
+
+      /* même si Notion garde un grand embed, le contenu reste clean */
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      white-space: nowrap;
+      padding: 6px 0;
     }
-    .wrap { display: inline-flex; gap: 6px; align-items: baseline; }
-    .label { opacity: .8; }
-    .date { font-weight: 600; }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <span class="label">Semaine du</span>
-    <span id="week-date" class="date"></span>
-  </div>
+  <span id="week"></span>
 
   <script>
     (function () {
+      // Date "Paris" pour éviter les décalages si l'utilisateur est dans un autre fuseau
       function parisNow() {
         return new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Paris" }));
       }
-      function mondayOfWeek(d) {
-        const day = (d.getDay() + 6) % 7; // Monday=0 ... Sunday=6
+
+      function startOfWeekMonday(d) {
+        const dayIndex = (d.getDay() + 6) % 7; // 0=lundi ... 6=dimanche
         const monday = new Date(d);
-        monday.setDate(d.getDate() - day);
+        monday.setDate(d.getDate() - dayIndex);
         monday.setHours(0, 0, 0, 0);
         return monday;
       }
-      function formatFR(d) {
-        return new Intl.DateTimeFormat("fr-FR", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-          timeZone: "Europe/Paris"
-        }).format(d);
+
+      function addDays(d, days) {
+        const x = new Date(d);
+        x.setDate(x.getDate() + days);
+        return x;
       }
-      document.getElementById("week-date").textContent = formatFR(mondayOfWeek(parisNow()));
+
+      function formatDDMMYYYY(d) {
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      }
+
+      const now = parisNow();
+
+      // Semaine précédente :
+      // 1) on prend le lundi de la semaine courante
+      // 2) on recule de 7 jours => lundi de la semaine précédente
+      // 3) dimanche = lundi + 6 jours
+      const thisWeekMonday = startOfWeekMonday(now);
+      const prevMonday = addDays(thisWeekMonday, -7);
+      const prevSunday = addDays(prevMonday, 6);
+
+      document.getElementById("week").textContent =
+        `Semaine du ${formatDDMMYYYY(prevMonday)} au ${formatDDMMYYYY(prevSunday)}`;
     })();
   </script>
 </body>
